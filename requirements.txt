@@ -18,7 +18,7 @@ graphviz
 
 reportlab
 
-pytube
+yt-dlp
 
 langchain
 
