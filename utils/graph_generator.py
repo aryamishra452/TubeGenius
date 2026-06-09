@@ -32,7 +32,11 @@ def parse_hierarchy(text):
 
         level = indent // 4
 
-        label = line.strip()
+        label = str(
+        line.strip()
+        .replace("-", "")
+        .strip()
+       )
 
         nodes.append(
             {
@@ -49,10 +53,42 @@ def build_graph(nodes):
     Create Graphviz graph.
     """
 
-    dot = graphviz.Digraph()
+    dot = graphviz.Digraph(
+     comment="Mind Map"
+    )
 
     dot.attr(
-        rankdir="TB"
+     rankdir="TB"
+    )
+
+    dot.attr(
+     splines="true"
+    )
+
+    dot.attr(
+     nodesep="0.8"
+    )
+
+    dot.attr(
+     ranksep="1.2"
+    )
+    
+    dot.attr(
+     "node",
+     shape="box",
+     style="rounded,filled",
+     fillcolor="#E0E7FF",
+     color="#6366F1",
+     fontname="Arial",
+     fontsize="12"
+    )
+
+    dot.attr(
+     size="14,12"
+    )
+
+    dot.attr(
+        dpi=300
     )
 
     stack = []
@@ -61,7 +97,7 @@ def build_graph(nodes):
 
         current_level = node["level"]
 
-        label = node["label"]
+        label = str(node["label"])
 
         dot.node(
             label,

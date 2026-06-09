@@ -126,8 +126,9 @@ Requirements:
 
 1. Identify topic changes.
 2. Create meaningful chapter names.
-3. Mention timestamps.
-4. Keep format:
+3. Each chapter must be on a NEW LINE.
+4. Mention timestamps.
+5. Keep format:
 
 00:00 Introduction
 
@@ -150,32 +151,45 @@ Transcript:
 # ==========================================
 
 MINDMAP_PROMPT = """
-You are an expert knowledge mapper.
+You are an expert knowledge architect.
 
-Analyze the transcript and create a hierarchical mindmap.
+Analyze the transcript and create a hierarchical mind map.
 
-Requirements:
+IMPORTANT:
 
-1. Find main topic.
-2. Find subtopics.
-3. Find relationships.
-4. Return ONLY hierarchy.
-5. No explanations.
+Return ONLY hierarchy.
 
-Format:
+Use EXACTLY this format:
 
 Main Topic
-    Sub Topic
-        Child Topic
-        Child Topic
-    Sub Topic
-        Child Topic
+
+    Branch 1
+
+        Subpoint 1
+
+        Subpoint 2
+
+    Branch 2
+
+        Subpoint 1
+
+        Subpoint 2
+
+Rules:
+
+- Maximum 5 branches.
+- Maximum 3 subpoints per branch.
+- Use indentation only.
+- Do NOT use bullets.
+- Do NOT use numbering.
+- Do NOT use paragraphs.
+- Keep node labels under 5 words.
+- Keep labels concise.
 
 Transcript:
 
 {transcript}
 """
-
 
 # ==========================================
 # CHAT WITH VIDEO
