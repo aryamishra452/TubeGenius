@@ -15,10 +15,12 @@ def parse_hierarchy(text):
     into parent-child relationships.
     """
 
+    text = str(text)
+
     lines = [
-        line.rstrip()
+        str(line).rstrip()
         for line in text.split("\n")
-        if line.strip()
+        if str(line).strip()
     ]
 
     nodes = []
@@ -30,13 +32,17 @@ def parse_hierarchy(text):
             - len(line.lstrip())
         )
 
-        level = indent // 4
+        level = max(
+            0,
+            round(indent / 4)
+        )
 
-        label = str(
-        line.strip()
-        .replace("-", "")
-        .strip()
-       )
+        label = (
+            str(line)
+            .strip()
+            .replace("-", "")
+            .strip()
+        )
 
         nodes.append(
             {
@@ -54,50 +60,49 @@ def build_graph(nodes):
     """
 
     dot = graphviz.Digraph(
-     comment="Mind Map"
+        comment="Mind Map"
     )
 
     dot.attr(
-     rankdir="TB"
+        rankdir="LR"
     )
 
     dot.attr(
-     splines="true"
+        splines="true"
     )
 
     dot.attr(
-     nodesep="0.8"
+        nodesep="0.8"
     )
 
     dot.attr(
-     ranksep="1.2"
-    )
-    
-    dot.attr(
-     "node",
-     shape="box",
-     style="rounded,filled",
-     fillcolor="#E0E7FF",
-     color="#6366F1",
-     fontname="Arial",
-     fontsize="12"
+        ranksep="3"
     )
 
     dot.attr(
-     size="14,12"
+        "node",
+        shape="box",
+        style="rounded,filled",
+        fillcolor="#E0E7FF",
+        color="#6366F1",
+        fontname="Arial",
+        fontsize="22"
     )
 
     dot.attr(
-        dpi=300
+        size="12,24"
     )
-
     stack = []
 
     for node in nodes:
 
-        current_level = node["level"]
+        current_level = int(
+            node["level"]
+        )
 
-        label = str(node["label"])
+        label = str(
+            node["label"]
+        )
 
         dot.node(
             label,
@@ -114,7 +119,9 @@ def build_graph(nodes):
 
         if stack:
 
-            parent = stack[-1]["label"]
+            parent = str(
+                stack[-1]["label"]
+            )
 
             dot.edge(
                 parent,
