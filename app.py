@@ -1,4 +1,5 @@
 #imports
+import traceback
 import sys
 
 print("PYTHON EXECUTABLE:")
@@ -49,7 +50,7 @@ from utils.pdf_export import (
 )
 
 from utils.graph_generator import (
-    create_mindmap
+    create_mindmap,save_graph
 )
 
 #load environment
@@ -617,6 +618,7 @@ if st.session_state.current_mode == "summary":
                     "Mind Map"
                 )
 
+
 #OUTPUT SECTION
 if st.session_state.generated_output:
 
@@ -626,7 +628,7 @@ if st.session_state.generated_output:
         st.session_state.output_type
     )
 
-#if generated output is mindmap
+    # Mind Map Output
     if (
         st.session_state.output_type
         == "Mind Map"
@@ -639,57 +641,71 @@ if st.session_state.generated_output:
             )
 
             st.graphviz_chart(
-                graph
+                graph,
+                use_container_width=True
             )
 
-        except Exception as e:
 
-            st.error(
-                f"Graph Error: {e}"
+        except Exception:
+
+            st.code(
+                traceback.format_exc()
             )
 
             st.code(
                 st.session_state.generated_output
             )
-    if (
-    st.session_state.output_type
-    == "Timestamp Summary"
+
+    # Timestamp Summary Output
+    elif (
+        st.session_state.output_type
+        == "Timestamp Summary"
     ):
-     formatted_output = (
-     st.session_state.generated_output
-        .replace("00:", "\n\n00:")
-        .replace("01:", "\n\n01:")
-        .replace("02:", "\n\n02:")
-        .replace("03:", "\n\n03:")
-        .replace("04:", "\n\n04:")
-        .replace("05:", "\n\n05:")
-        .replace("06:", "\n\n06:")
-        .replace("07:", "\n\n07:")
-        .replace("08:", "\n\n08:")
-        .replace("09:", "\n\n09:")
-        .replace("10:", "\n\n10:")
+
+        formatted_output = (
+            st.session_state.generated_output
+            .replace("00:", "\n\n00:")
+            .replace("01:", "\n\n01:")
+            .replace("02:", "\n\n02:")
+            .replace("03:", "\n\n03:")
+            .replace("04:", "\n\n04:")
+            .replace("05:", "\n\n05:")
+            .replace("06:", "\n\n06:")
+            .replace("07:", "\n\n07:")
+            .replace("08:", "\n\n08:")
+            .replace("09:", "\n\n09:")
+            .replace("10:", "\n\n10:")
+            .replace("11:", "\n\n11:")
+            .replace("12:", "\n\n12:")
+            .replace("13:", "\n\n13:")
+            .replace("14:", "\n\n14:")
+            .replace("15:", "\n\n15:")
+            .replace("16:", "\n\n16:")
+            .replace("17:", "\n\n17:")
+            .replace("18:", "\n\n18:")
+            .replace("19:", "\n\n19:")
+            .replace("20:", "\n\n20:")
         )
-    st.markdown(
-     formatted_output
-    )
-#display text output
-if (
-    st.session_state.output_type
-    != "Mind Map"
-):
 
-    st.markdown(
-        st.session_state.generated_output
-    )
+        st.markdown(
+            formatted_output
+        )
 
-#save to history
+    # All Other Outputs
+    else:
+
+        st.markdown(
+            st.session_state.generated_output
+        )
+
+    # Save History
     from utils.database import (
         save_history
     )
 
-    if (
-        "saved_once"
-        not in st.session_state
+    if not st.session_state.get(
+        "saved_once",
+        False
     ):
 
         save_history(
@@ -701,14 +717,16 @@ if (
 
         st.session_state.saved_once = True
 
-#PDF EXPORT SECTION
+    # PDF EXPORT SECTION
     st.divider()
 
     st.subheader(
         "📥 Export"
     )
 
-#detailed notes PDF
+    pdf_path = None
+
+    # Detailed Notes
     if (
         st.session_state.output_type
         == "Detailed Notes"
@@ -721,7 +739,7 @@ if (
             )
         )
 
-#point summary PDF
+    # Point Summary
     elif (
         st.session_state.output_type
         == "Point Summary"
@@ -734,7 +752,7 @@ if (
             )
         )
 
-#flashcards PDF
+    # Flashcards
     elif (
         st.session_state.output_type
         == "Flashcards"
@@ -747,9 +765,7 @@ if (
             )
         )
 
-
-
-#quiz PDF
+    # Quiz
     elif (
         st.session_state.output_type
         == "Quiz"
@@ -762,7 +778,7 @@ if (
             )
         )
 
-#timestamp summary PDF
+    # Timestamp Summary
     elif (
         st.session_state.output_type
         == "Timestamp Summary"
@@ -775,33 +791,49 @@ if (
             )
         )
 
-#mindmap PDF
+    # Mind Map
     elif (
-        st.session_state.output_type
-        == "Mind Map"
+     st.session_state.output_type== "Mind Map"
     ):
 
-        pdf_path = (
-            create_mindmap_pdf(
-                st.session_state.video_title,
-                st.session_state.generated_output
-            )
-        )
+     graph = create_mindmap(
+        st.session_state.generated_output
+     )
 
-#download button
-    with open(
-        pdf_path,
+     image_path = save_graph(
+        graph,
+        "mindmap"
+     )
+
+     with open(
+        image_path,
         "rb"
-    ) as file:
+     ) as file:
 
         st.download_button(
-            label="📄 Download PDF",
+            label="🖼 Download Mind Map PNG",
             data=file,
-            file_name=os.path.basename(
-                pdf_path
-            ),
-            mime="application/pdf"
+            file_name="mindmap.png",
+            mime="image/png"
         )
+
+    # Download Button
+    if pdf_path:
+
+        with open(
+            pdf_path,
+            "rb"
+        ) as file:
+
+            st.download_button(
+                label="📄 Download PDF",
+                data=file,
+                file_name=os.path.basename(
+                    pdf_path
+                ),
+                mime="application/pdf"
+            )
+
 
 #CHAT SECTION
 if st.session_state.current_mode == "chat":
@@ -816,13 +848,11 @@ if st.session_state.current_mode == "chat":
         "Ask questions about the video content"
     )
 
-#ask question input
     user_question = st.text_input(
         "Ask a question",
         placeholder="What is the main topic discussed?"
     )
 
-#ask button
     if st.button(
         "🚀 Ask"
     ):
@@ -858,7 +888,6 @@ if st.session_state.current_mode == "chat":
                         str(e)
                     )
 
-#display chat history
     if st.session_state.chat_history:
 
         st.divider()
@@ -879,6 +908,7 @@ if st.session_state.current_mode == "chat":
 """
             )
 
+
 #TRANSCRIPT VIEWER
 if st.session_state.transcript_text:
 
@@ -892,16 +922,6 @@ if st.session_state.transcript_text:
             st.session_state.transcript_text
         )
 
-#TIMESTAMPED TRANSCRIPT VIEWER
-if st.session_state.timestamped_text:
-
-    with st.expander(
-        "⏰ View Timestamped Transcript"
-    ):
-
-        st.text(
-            st.session_state.timestamped_text
-        )
 
 #CURRENT LOADED VIDEO INFO
 if st.session_state.video_title:
@@ -912,9 +932,6 @@ if st.session_state.video_title:
         f"Loaded Video: {st.session_state.video_title}"
     )
 
-
-
-#CLEAR CHAT BUTTON
     if st.button(
         "🗑 Clear Chat"
     ):
@@ -922,6 +939,7 @@ if st.session_state.video_title:
         st.session_state.chat_history = []
 
         st.rerun()
+
 
 #FOOTER
 st.markdown("""
