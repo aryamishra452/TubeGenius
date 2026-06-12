@@ -257,7 +257,7 @@ with st.sidebar:
 
 #Youtube URL input
 st.subheader(
-    "Paste YouTube Video Watch URL"
+    "Paste YouTube Video URL"
 )
 
 youtube_url = st.text_input(

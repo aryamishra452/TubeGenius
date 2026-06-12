@@ -8,31 +8,40 @@ from youtube_transcript_api import (
 
 def extract_video_id(url):
     """
-    Extract video ID from YouTube URL.
+    Extract video ID from any valid YouTube URL.
+    Supports:
+    - watch URLs
+    - youtu.be URLs
+    - shorts URLs
+    - live URLs
+    - mobile URLs
+    - shared URLs
     """
 
-    patterns = [
-        r"(?:v=)([A-Za-z0-9_-]{11})",
-        r"(?:youtu\.be/)([A-Za-z0-9_-]{11})",
-        r"(?:shorts/)([A-Za-z0-9_-]{11})",
-        r"(?:embed/)([A-Za-z0-9_-]{11})"
-    ]
+    ydl_opts = {
+        "quiet": True,
+        "skip_download": True
+    }
 
-    for pattern in patterns:
+    try:
 
-        match = re.search(
-            pattern,
-            url
+        with yt_dlp.YoutubeDL(
+            ydl_opts
+        ) as ydl:
+
+            info = ydl.extract_info(
+                url,
+                download=False
+            )
+
+        return info["id"]
+
+    except Exception as e:
+
+        raise ValueError(
+            f"Invalid YouTube URL: {e}"
         )
-
-        if match:
-            return match.group(1)
-
-    raise ValueError(
-        "Invalid YouTube URL"
-    )
-
-
+    
 def get_video_info(url):
     """
     Get metadata using yt-dlp.
@@ -83,6 +92,10 @@ def fetch_transcript(url):
 
     video_id = extract_video_id(
         url
+    )
+
+    print(
+     f"Video ID: {video_id}"
     )
 
     api = YouTubeTranscriptApi()
